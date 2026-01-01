@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eksploracja Danych - "Dom" na podstawiedanych Housing.csv</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        /* DEFINICJA KOLORÓW I ZMIENNYCH */
+        :root {
+            --primary-color: #0d47a1;   /* Głębokoniebieski */
+            --primary-light: #1565c0;   /* Jasny niebieski */
+            --secondary-color: #f5f7fa; /* Jasnoszare tło */
+            --highlight-color: #00bfa5; /* Turkusowy akcent */
+            --accent-color: #ff6b6b;    /* Czerwony akcent */
+            --text-color: #2c3e50;
+            --text-light: #7f8c8d;
+            --white: #fff;
+            --shadow-light: 0 2px 8px rgba(0,0,0,0.08);
+            --shadow-medium: 0 4px 16px rgba(0,0,0,0.12);
+            --shadow-dark: 0 8px 24px rgba(0,0,0,0.15);
+            --border-radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, var(--secondary-color) 0%, #e8f1f5 100%);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+
+        /* GÓRNY PASEK NAWIGACYJNY */
+        .top-navbar {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            color: var(--white);
+            padding: 1.5rem 2rem;
+            box-shadow: var(--shadow-medium);
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+        }
+
+        .top-navbar .logo {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--white);
+            text-decoration: none;
+            letter-spacing: 0.5px;
+        }
+
+        /* GŁÓWNA ZAWARTOŚĆ STRONY (sidebar + sekcje) */
+        .container {
+            display: flex;
+            flex: 1;
+            padding: 30px;
+            gap: 30px;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* BOCZNY PASEK NAWIGACYJNY */
+        .sidebar {
+            width: 280px;
+            background-color: var(--white);
+            box-shadow: var(--shadow-medium);
+            padding: 2rem 0;
+            border-radius: var(--border-radius);
+            flex-shrink: 0;
+            height: fit-content;
+            position: sticky;
+            top: 30px;
+        }
+
+        .sidebar h2 {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            padding: 0 1.5rem 1.5rem;
+            margin: 0;
+            border-bottom: 2px solid var(--highlight-color);
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .sidebar .tab-links {
+            list-style: none;
+            padding: 0.5rem 0;
+            margin: 0;
+        }
+
+        .sidebar .tab-links li a {
+            display: block;
+            padding: 0.95rem 1.5rem;
+            color: var(--text-color);
+            text-decoration: none;
+            border-left: 4px solid transparent;
+            transition: var(--transition);
+            font-size: 0.95rem;
+        }
+
+        .sidebar .tab-links li a:hover {
+            background-color: rgba(13, 71, 161, 0.05);
+            border-left-color: var(--highlight-color);
+            color: var(--primary-color);
+            padding-left: 1.75rem;
+        }
+
+        .sidebar .tab-links li a.active {
+            background: linear-gradient(90deg, rgba(0, 191, 165, 0.1) 0%, transparent 100%);
+            color: var(--primary-color);
+            border-left-color: var(--highlight-color);
+            font-weight: 600;
+            padding-left: 1.75rem;
+        }
+
+        /* SEKCJE Z WYKRESAMI */
+        .content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .chart-section {
+            background-color: var(--white);
+            padding: 2.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-medium);
+            display: none;
+            transition: var(--transition);
+            animation: fadeIn 0.4s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chart-section.active {
+            display: block;
+        }
+
+        .chart-section h3 {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 2rem;
+            border-bottom: 3px solid var(--highlight-color);
+            padding-bottom: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        /* FOOTER */
+        .footer {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            color: var(--white);
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: auto;
+            box-shadow: var(--shadow-dark);
+        }
+
+        /* POPRAWKI RESPONSZYWNOŚCI DLA MAŁYCH EKRANÓW */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                padding: 15px;
+                gap: 15px;
+            }
+
+            .sidebar {
+                width: 100%;
+                margin: 0;
+                border-radius: 0;
+                position: static;
+            }
+            
+            .sidebar h2 {
+                text-align: center;
+                border-bottom: 2px solid var(--highlight-color);
+                padding-bottom: 1rem;
+            }
+
+            .sidebar .tab-links {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .sidebar .tab-links li {
+                flex: 1 1 45%;
+                text-align: center;
+            }
+            .sidebar .tab-links li a {
+                border-left: none;
+                border-bottom: 4px solid transparent;
+            }
+            .sidebar .tab-links li a:hover,
+            .sidebar .tab-links li a.active {
+                border-left: none;
+                border-bottom-color: var(--highlight-color);
+            }
+
+            .chart-section {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="top-navbar">
+        <a href="#" class="logo">Eksploracja Danych - "Dom" na podstawie danych Housing.csv</a>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <h2>Analizy Projektu</h2>
+            <ul class="tab-links">
+                <li><a href="#analysis1" class="tab-link active">Analiza rozkładów i zależności</a></li>
+                <li><a href="#analysis2" class="tab-link">Macierz korelacji zmiennych numerycznych</a></li>
+                <li><a href="#analysis3" class="tab-link">Cena w zależności od zmiennych kategorycznych</a></li>
+                <li><a href="#analysis4" class="tab-link">Diagnostyka Residuów Regresji Liniowej</a></li>
+                <li><a href="#analysis5" class="tab-link">Porównianie Metryk Modeli</a></li>
+                <li><a href="#analysis6" class="tab-link">Ocena Modeli</a></li>
+                <li><a href="#analysis7" class="tab-link">Ważność Predyktorów / Współczynniki modeli</a></li>
+                <li><a href="#analysis8" class="tab-link">Analiza Heteroskedastyczności</a></li>
+                </ul>
+        </aside>
+
+        <main class="content">
+            <section id="analysis1" class="chart-section active">
+                <h3>Analiza rozkładów i zależności</h3>
+                                
+                <div id="plotly-graph-1-container" style="width:100%; height:650px;">
+                    <iframe 
+                        src="analiza_rozkladow_zaleznosci.html" 
+                        frameborder="0" 
+                        style="width:100%; height:100%; border: none;
+                        margin-bottom: 20px;"
+                    >
+                        Twoja przeglądarka nie obsługuje elementu iframe.
+                    </iframe>
+                </div>
+            </section>
+
+            <section id="analysis2" class="chart-section">
+                <h3>Macierz korelacji zmiennych numerycznych</h3>
+               
+                <div id="plotly-graph-2-container" style="width:100%; height:900px;">
+                
+                    <iframe 
+                        src="macierz_korelacji.html" 
+                        frameborder="0" 
+                        style="width:100%; height:100%; border: none; margin-bottom: 20px;"
+                    >
+                        Twoja przeglądarka nie obsługuje elementu iframe.
+                    </iframe>
+                </div>
+            </section>
+
+            <section id="analysis3" class="chart-section">
+                <h3>Cena w zależności od zmiennych kategorycznych</h3>
+                                
+                <div id="plotly-graph-3-container" style="width:100%; height:600px;">
+                    <iframe 
+                        src="boxploty_6.html" 
+                        frameborder="0" 
+                        style="width:100%; height:100%; border: none;"
+                    >
+                        Twoja przeglądarka nie obsługuje elementu iframe.
+                    </iframe>
+                </div>
+            </section>
+
+            <section id="analysis4" class="chart-section">
+                <h3>Diagnostyka Residuów Regresji Liniowej</h3>
+                
+                <div id="plotly-graph-4-container" style="width:100%; height:650px;">
+                    <iframe 
+                        src="Q-Q_plot.html" 
+                        frameborder="0" 
+                        style="width:100%; height:100%; border: none;"
+                    >
+                        Twoja przeglądarka nie obsługuje elementu iframe.
+                    </iframe>
+                </div>
+            </section>
+
+            <section id="analysis5" class="chart-section">
+                <h3>Porównianie Metryk Modeli</h3>
+                
+                <div id="plotly-graph-5-container" style="width:100%; height:650px;">
+                    <iframe 
+                        src="porownanie_metryk.html" 
+                        frameborder="0"
+                        style="width:100%; height:100%; border: none;"
+                    >
+                        Twoja przeglądarka nie obsługuje elementu iframe.
+                    </iframe>
+                </div>
+            </section>
+
+            <section id="analysis6" class="chart-section">
+                <h3>Ocena Modeli</h3>
+                
+                <div id="plotly-graph-6-container" style="width:100%; height:650px;">
+                    <iframe 
+                        src="ocena_modeli_lr_vs_rf.html" 
+                        frameborder="0" 
+                        style="width:100%; height:100%; border: none;"
+                    >
+                        Twoja przeglądarka nie obsługuje elementu iframe.
+                    </iframe>
+                </div>
+            </section>
+
+            <section id="analysis7" class="chart-section">
+                <h3>Ważność Predyktorów / Współczynniki modeli</h3>
+                
+                <div id="plotly-graph-7-container" style="width:100%; height:650px;">
+                    <iframe 
+                        src="waznosc_predyktorow.html" 
+                        frameborder="0" 
+                        style="width:100%; height:100%; border: none;"
+                    >
+                        Twoja przeglądarka nie obsługuje elementu iframe.
+                    </iframe>
+                </div>
+            </section>
+
+            <section id="analysis8" class="chart-section">
+                <h3>Analiza Heteroskedastyczności</h3>
+                
+                <div id="plotly-graph-8-container" style="width:100%; height:650px;">
+                    <iframe 
+                        src="analiza_heteroskedastyczności.html" 
+                        frameborder="0" 
+                        style="width:100%; height:100%; border: none;"
+                    >
+                        Twoja przeglądarka nie obsługuje elementu iframe.
+                    </iframe>
+                </div>
+            </section>
+
+            </main>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2026 Projekt Grupowy - Eksploracja Danych. Wszelkie prawa zastrzeżone.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabLinks = document.querySelectorAll('.tab-link');
+            const chartSections = document.querySelectorAll('.chart-section');
+
+            function showSection(id) {
+                // Ukryj wszystkie sekcje
+                chartSections.forEach(section => {
+                    section.classList.remove('active');
+                });
+                // Usuń aktywną klasę ze wszystkich linków
+                tabLinks.forEach(link => {
+                    link.classList.remove('active');
+                });
+
+                // Pokaż wybraną sekcję i oznacz link jako aktywny
+                const targetSection = document.querySelector(id);
+                if (targetSection) {
+                    targetSection.classList.add('active');
+                    document.querySelector(`[href="${id}"]`).classList.add('active');
+                }
+            }
+
+            // Obsługa kliknięć w zakładki
+            tabLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    showSection(targetId);
+
+                    // Zaktualizuj URL w przeglądarce
+                    history.pushState(null, '', targetId);
+                });
+            });
+
+            // Sprawdź, czy URL zawiera hash (np. #analysis2)
+            const initialHash = window.location.hash;
+            if (initialHash && document.querySelector(initialHash)) {
+                showSection(initialHash);
+            } else {
+                // Domyślnie pokaż pierwszą sekcję
+                showSection(tabLinks[0].getAttribute('href'));
+            }
+        });
+    </script>
+
+</body>
+</html>
